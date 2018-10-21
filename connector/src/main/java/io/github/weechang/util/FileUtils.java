@@ -136,9 +136,10 @@ public class FileUtils {
         try {
             fileReader = new FileReader(filePath);
             bufferedReader = new BufferedReader(fileReader);
-            while (bufferedReader.readLine() != null) {
+            String lineStr = null;
+            while ((lineStr = bufferedReader.readLine()) != null) {
                 if (start <= line && line <= end) {
-                    result.add(bufferedReader.readLine());
+                    result.add(lineStr);
                 } else if (line > end) {
                     break;
                 }

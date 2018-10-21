@@ -37,7 +37,7 @@ public class ProfileGeneretor {
             passwordList = PasswordGeneretor.getPassword(generetor, start, end);
             if (passwordList != null && passwordList.size() > 0) {
                 // 生成配置文件
-                for (String password: passwordList){
+                for (String password : passwordList) {
                     GenThread genThread = new GenThread(ssid, password);
                     threadPool.execute(genThread);
                 }
@@ -46,23 +46,20 @@ public class ProfileGeneretor {
             }
             counter++;
         }
-        while (!threadPool.isTerminated()){
-            System.out.println("配置文件生成中，请稍后...");
-        }
     }
 }
 
-class GenThread implements Runnable{
+class GenThread implements Runnable {
 
     private String ssid = null;
     private String password = null;
 
-    GenThread(String ssid, String password){
+    GenThread(String ssid, String password) {
         this.ssid = ssid;
         this.password = password;
     }
 
-    private String getProfilePath(){
+    private String getProfilePath() {
         return FileConfig.PROFILE_PATH + "\\" + password + ".xml";
     }
 

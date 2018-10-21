@@ -38,8 +38,8 @@ public class Connector {
         int counter = 0;
         outer:
         while (true) {
-            int start = counter * 6000;
-            int end = (counter + 1) * 6000 - 1;
+            int start = counter * FileConfig.PASSWORD_SIZE;
+            int end = (counter + 1) * FileConfig.PASSWORD_SIZE - 1;
             passwordList = PasswordGeneretor.getPassword(generetor, start, end);
             if (passwordList != null && passwordList.size() > 0) {
                 for (int i = 0; i < passwordList.size(); i++) {
