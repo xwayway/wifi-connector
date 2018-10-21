@@ -27,6 +27,8 @@ public class FileUtils {
             file.createNewFile();
         } catch (IOException e) {
             System.out.println("创建文件出错");
+            String error = "写入文件出错:" + filePath;
+            FileUtils.appendToFile("D:\\wlan\\error.txt", error);
             e.printStackTrace();
         }
     }

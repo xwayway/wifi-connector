@@ -8,7 +8,7 @@ import io.github.weechang.util.FileUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.weechang.config.Generetor.FIRST_MOST_COUPLE;
+import static io.github.weechang.config.Generetor.*;
 
 /**
  * 密码生成器
@@ -21,10 +21,12 @@ public class PasswordGeneretor {
      * @param generetor 生成方式
      */
     public static void genPassword(Generetor generetor) {
-        if (generetor.equals(Generetor.MOST_USE)) {
+        if (generetor.equals(MOST_USE)) {
             mostUseGen();
         } else if (generetor.equals(FIRST_MOST_COUPLE)) {
             firstMostCouple();
+        } else if (generetor.equals(FIRST_MOST_COUPLE_MOST_INS)){
+            firstMostCoupleMostIns();
         }
     }
 
@@ -32,7 +34,7 @@ public class PasswordGeneretor {
      * 生成常用密码
      */
     private static void mostUseGen() {
-        FileUtils.appendToFile(FileConfig.getPasswordPath(Generetor.MOST_USE), Password.MOST_USE);
+        FileUtils.appendToFile(FileConfig.getPasswordPath(MOST_USE), Password.MOST_USE);
         System.out.println("常用密码生成完毕");
     }
 
@@ -65,17 +67,11 @@ public class PasswordGeneretor {
         System.out.println("三字姓名+常用组合已生成");
     }
 
-    private static List<String> connectList(List<String> outer, String... inner) {
-        List<String> result = new ArrayList<String>();
-        for (String outerText : outer) {
-            for (String innerTxt : inner) {
-                String pwd = outerText + innerTxt;
-                if (pwd != null && pwd.length() > 7) {
-                    result.add(pwd);
-                }
-            }
-        }
-        return result;
+    /**
+     * 首字母+常用组合+常用符号
+     */
+    private static void firstMostCoupleMostIns(){
+
     }
 
     /**
@@ -94,16 +90,39 @@ public class PasswordGeneretor {
     private static String getFilePath(Generetor generetor) {
         String filePath = null;
         switch (generetor) {
+            case WAKE:
+                filePath = FileConfig.getPasswordPath(WAKE);
+                break;
             case MOST_USE:
-                filePath = FileConfig.getPasswordPath(Generetor.MOST_USE);
+                filePath = FileConfig.getPasswordPath(MOST_USE);
                 break;
             case FIRST_MOST_COUPLE:
                 filePath = FileConfig.getPasswordPath(FIRST_MOST_COUPLE);
                 break;
             default:
-                filePath = FileConfig.getPasswordPath(Generetor.MOST_USE);
+                filePath = FileConfig.getPasswordPath(MOST_USE);
                 break;
         }
         return filePath;
+    }
+
+    /**
+     * 字符串连接
+     *
+     * @param outer 外层list
+     * @param inner 内层数据
+     * @return 字符串
+     */
+    private static List<String> connectList(List<String> outer, String... inner) {
+        List<String> result = new ArrayList<String>();
+        for (String outerText : outer) {
+            for (String innerTxt : inner) {
+                String pwd = outerText + innerTxt;
+                if (pwd != null && pwd.length() > 7) {
+                    result.add(pwd);
+                }
+            }
+        }
+        return result;
     }
 }

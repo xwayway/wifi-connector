@@ -4,8 +4,11 @@ import io.github.weechang.config.FileConfig;
 import io.github.weechang.config.Generetor;
 import io.github.weechang.config.Profile;
 import io.github.weechang.util.FileUtils;
+import sun.nio.ch.DirectBuffer;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 配置文件生成器
@@ -14,6 +17,7 @@ public class ProfileGeneretor {
 
     private String ssid = null;
     private Generetor generetor = Generetor.MOST_USE;
+    private ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
     public ProfileGeneretor(String ssid, Generetor generetor) {
         this.ssid = ssid;
@@ -35,14 +39,16 @@ public class ProfileGeneretor {
                 // 生成配置文件
                 for (String password: passwordList){
                     GenThread genThread = new GenThread(ssid, password);
-                    genThread.run();
+                    threadPool.execute(genThread);
                 }
-                counter++;
             } else {
                 break outer;
             }
+            counter++;
         }
-        System.out.println("配置文件生成完毕");
+        while (!threadPool.isTerminated()){
+            System.out.println("配置文件生成中，请稍后...");
+        }
     }
 }
 
@@ -56,7 +62,7 @@ class GenThread implements Runnable{
         this.password = password;
     }
 
-    public String getProfilePath(){
+    private String getProfilePath(){
         return FileConfig.PROFILE_PATH + "\\" + password + ".xml";
     }
 
