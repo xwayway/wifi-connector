@@ -1,7 +1,7 @@
 package io.github.weechang.cmd;
 
+import io.github.weechang.Connector;
 import io.github.weechang.config.Command;
-import io.github.weechang.config.FileConfig;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,13 +17,19 @@ public class WlanExecute {
 
     /**
      * 校验WLAN配置文件是否正确
+     * <p>
+     * 校验步骤为：
+     * ---step1 添加配置文件
+     * ---step3 连接wifi
+     * ---step3 ping校验
      */
-    public static boolean check(String ssid, String profileName) {
-        System.out.println("check : " + profileName);
+    public synchronized static boolean check(String ssid, String password) {
+        System.out.println("check : " + password);
         try {
+            String profileName = password + ".xml";
             if (addProfile(profileName)) {
                 if (connect(ssid)) {
-                    Thread.sleep(1000L);
+                    Thread.sleep(50);
                     if (ping()) {
                         return true;
                     }
@@ -36,28 +42,18 @@ public class WlanExecute {
     }
 
     /**
-     * 执行器
+     * 列出所有信号较好的ssid
      *
-     * @param cmd 命令
+     * @return 所有ssid
      */
-    private static List<String> execute(String cmd, String filePath) {
-        Process process = null;
-        List<String> result = new ArrayList<String>();
-        try {
-            if (filePath != null) {
-                process = Runtime.getRuntime().exec(cmd, null, new File(filePath));
-            } else {
-                process = Runtime.getRuntime().exec(cmd);
-            }
-            BufferedReader bReader = new BufferedReader(new InputStreamReader(process.getInputStream(), "gbk"));
-            String line = null;
-            while ((line = bReader.readLine()) != null) {
-                result.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static List<String> listSsid() {
+        List<String> ssidList = new ArrayList<String>();
+        String cmd = Command.SHOW_NETWORKS;
+        List<String> result = execute(cmd, null);
+        if (result != null && result.size() > 0){
+
         }
-        return result;
+        return ssidList;
     }
 
     /**
@@ -67,7 +63,7 @@ public class WlanExecute {
      */
     private static boolean addProfile(String profileName) {
         String cmd = Command.ADD_PROFILE.replace("FILE_NAME", profileName);
-        List<String> result = execute(cmd, FileConfig.PROFILE_PATH);
+        List<String> result = execute(cmd, Connector.PROFILE_TEMP_PATH);
         if (result != null && result.size() > 0) {
             if (result.get(0).contains("添加到接口")) {
                 return true;
@@ -94,11 +90,11 @@ public class WlanExecute {
     }
 
     /**
-     * ping 百度
+     * ping 校验
      */
     private static boolean ping() {
         boolean pinged = false;
-        String cmd = "ping www.baidu.com";
+        String cmd = "ping " + Connector.PING_DOMAIN;
         List<String> result = execute(cmd, null);
         if (result != null && result.size() > 0) {
             for (String item : result) {
@@ -109,5 +105,30 @@ public class WlanExecute {
             }
         }
         return pinged;
+    }
+
+    /**
+     * 执行器
+     *
+     * @param cmd 命令
+     */
+    private static List<String> execute(String cmd, String filePath) {
+        Process process = null;
+        List<String> result = new ArrayList<String>();
+        try {
+            if (filePath != null) {
+                process = Runtime.getRuntime().exec(cmd, null, new File(filePath));
+            } else {
+                process = Runtime.getRuntime().exec(cmd);
+            }
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(process.getInputStream(), "gbk"));
+            String line = null;
+            while ((line = bReader.readLine()) != null) {
+                result.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
