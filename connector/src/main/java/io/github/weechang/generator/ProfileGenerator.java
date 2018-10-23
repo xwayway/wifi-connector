@@ -14,12 +14,12 @@ import java.util.concurrent.Executors;
 public class ProfileGenerator {
 
     private String ssid = null;
-    private String passwrodPath = null;
+    private String passwordPath = null;
     private ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
     public ProfileGenerator(String ssid, String passwrodPath) {
         this.ssid = ssid;
-        this.passwrodPath = passwrodPath;
+        this.passwordPath = passwrodPath;
     }
 
     /**
@@ -32,7 +32,7 @@ public class ProfileGenerator {
         while (true) {
             int start = counter * Connector.BATH_SIZE;
             int end = (counter + 1) * Connector.BATH_SIZE - 1;
-            passwordList = FileUtils.readLine(passwrodPath, start, end);
+            passwordList = FileUtils.readLine(passwordPath, start, end);
             if (passwordList != null && passwordList.size() > 0) {
                 // 生成配置文件
                 for (String password : passwordList) {

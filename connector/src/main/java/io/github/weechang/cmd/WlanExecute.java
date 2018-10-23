@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * wlan 命令行执行器
@@ -23,7 +24,7 @@ public class WlanExecute {
      * ---step3 连接wifi
      * ---step3 ping校验
      */
-    public synchronized static boolean check(String ssid, String password) {
+    public synchronized boolean check(String ssid, String password) {
         System.out.println("check : " + password);
         try {
             String profileName = password + ".xml";
@@ -46,12 +47,12 @@ public class WlanExecute {
      *
      * @return 所有ssid
      */
-    public static List<String> listSsid() {
-        List<String> ssidList = new ArrayList<String>();
+    public static List<Ssid> listSsid() {
+        List<Ssid> ssidList = new ArrayList<Ssid>();
         String cmd = Command.SHOW_NETWORKS;
         List<String> result = execute(cmd, null);
-        if (result != null && result.size() > 0){
-
+        if (result != null && result.size() > 0) {
+            // todo 整合信息
         }
         return ssidList;
     }
@@ -110,7 +111,8 @@ public class WlanExecute {
     /**
      * 执行器
      *
-     * @param cmd 命令
+     * @param cmd      CMD命令
+     * @param filePath 需要在哪个目录下执行
      */
     private static List<String> execute(String cmd, String filePath) {
         Process process = null;
